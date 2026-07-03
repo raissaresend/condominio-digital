@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport name="RelatorioUnidades" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30">
+    <parameter name="subReport" class="net.sf.jasperreports.engine.JasperReport"/>
+    
+    <field name="identificacao" class="java.lang.String"/>
+    <field name="encomendas" class="java.util.List"/>
+    
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="10" width="535" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Relatório de Encomendas por Unidade]]></text>
+            </staticText>
+        </band>
+    </title>
+    
+    <detail>
+        <band height="60">
+            <textField>
+                <reportElement x="0" y="5" width="535" height="20"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Unidade: " + $F{identificacao}]]></textFieldExpression>
+            </textField>
+            
+            <subreport>
+                <reportElement x="20" y="30" width="500" height="20" isRemoveLineWhenBlank="true"/>
+                <dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{encomendas})]]></dataSourceExpression>
+                <subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{subReport}]]></subreportExpression>
+            </subreport>
+        </band>
+    </detail>
+</jasperReport>

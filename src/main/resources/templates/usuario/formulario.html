@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastrar Usuário</title>
+</head>
+<body>
+  <div layout:fragment="conteudo" th:fragment="conteudo" id="main" class="flex-1 overflow-x-hidden p-6 sm:p-10">
+    <div class="flex items-center justify-between pb-6">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-700" th:text="${usuario.codigo == null ? 'Novo Usuário' : 'Editar Usuário'}">Novo Usuário</h2>
+        <span class="text-xs text-gray-500">Preencha os dados do sistema</span>
+      </div>
+      <div>
+        <a th:hx-get="@{/usuario}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true" class="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          Voltar
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-5 md:col-span-2 md:mt-0">
+      <form id="formulario" th:fragment="formulario" th:action="${usuario.codigo == null ? '/usuario/cadastrar' : '/usuario/alterar/' + usuario.codigo}" th:object="${usuario}" hx-post hx-target="this" hx-swap="outerHTML">
+        <div class="overflow-hidden shadow sm:rounded-md">
+          <div class="bg-white px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+
+              <input type="hidden" th:field="*{codigo}" />
+
+              <div class="col-span-6 sm:col-span-3">
+                <label for="username" class="block text-sm font-medium text-gray-700">Login (Username)</label>
+                <input type="text" th:field="*{username}" id="username" autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('username')} ? 'border-red-500' : ''">
+                <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+              <div class="col-span-6 sm:col-span-3">
+                <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                <input type="password" th:field="*{password}" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : ''">
+                <p class="text-xs text-gray-500 mt-1" th:if="${usuario.codigo != null}">Deixe em branco para manter a mesma senha.</p>
+                <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+              <div class="col-span-6 sm:col-span-3">
+                <label for="role" class="block text-sm font-medium text-gray-700">Papel (Role)</label>
+                <select id="role" th:field="*{role}" class="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                  <option value="ROLE_MORADOR">Morador</option>
+                  <option value="ROLE_PORTEIRO">Porteiro</option>
+                </select>
+                <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+            <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              Salvar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</body>
+</html>

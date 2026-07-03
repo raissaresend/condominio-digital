@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: condominio_digital_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: condominiodigital
+    ports:
+      - "5433:5432"
+    volumes:
+      - condominio_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: condominio_digital_app
+    ports:
+      - "8443:8443"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/condominiodigital
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  condominio_pgdata:

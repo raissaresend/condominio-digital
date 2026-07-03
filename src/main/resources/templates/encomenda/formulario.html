@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastrar Encomenda</title>
+</head>
+<body>
+  <div layout:fragment="conteudo" th:fragment="conteudo" id="main" class="flex-1 overflow-x-hidden p-6 sm:p-10">
+    <div class="flex items-center justify-between pb-6">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-700" th:text="${encomenda.codigo == null ? 'Nova Encomenda' : 'Editar Encomenda'}">Nova Encomenda</h2>
+        <span class="text-xs text-gray-500">Preencha os dados abaixo</span>
+      </div>
+      <div>
+        <a th:hx-get="@{/encomenda}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true" class="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          Voltar
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-5 md:col-span-2 md:mt-0">
+      <form id="formulario" th:fragment="formulario" th:action="${encomenda.codigo == null ? '/encomenda/cadastrar' : '/encomenda/alterar/' + encomenda.codigo}" th:object="${encomenda}" hx-post hx-target="this" hx-swap="outerHTML">
+        <div class="overflow-hidden shadow sm:rounded-md">
+          <div class="bg-white px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+
+              <input type="hidden" th:field="*{codigo}" />
+
+              <div class="col-span-6">
+                <label for="descricao" class="block text-sm font-medium text-gray-700">Descrição</label>
+                <textarea th:field="*{descricao}" id="descricao" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('descricao')} ? 'border-red-500' : ''"></textarea>
+                <p th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+              <div class="col-span-6 sm:col-span-3">
+                <label for="dataRecebimento" class="block text-sm font-medium text-gray-700">Data e Hora de Recebimento</label>
+                <!-- Usando datetime-local para captura nativa -->
+                <input type="datetime-local" th:field="*{dataRecebimento}" id="dataRecebimento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('dataRecebimento')} ? 'border-red-500' : ''">
+                <p th:if="${#fields.hasErrors('dataRecebimento')}" th:errors="*{dataRecebimento}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+              <div class="col-span-6 sm:col-span-3">
+                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <select th:field="*{status}" id="status" class="mt-1 block w-full rounded-md border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('status')} ? 'border-red-500' : ''">
+                  <option value="" disabled selected>Selecione um status...</option>
+                  <option th:each="enumValue : ${statusList}" th:value="${enumValue}" th:text="${enumValue.descricao}"></option>
+                </select>
+                <p th:if="${#fields.hasErrors('status')}" th:errors="*{status}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+              <div class="col-span-6 sm:col-span-3">
+                <label for="unidade" class="block text-sm font-medium text-gray-700">Unidade (Destino)</label>
+                <select th:field="*{unidade}" id="unidade" class="mt-1 block w-full rounded-md border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('unidade')} ? 'border-red-500' : ''">
+                  <option value="" disabled selected>Selecione a unidade...</option>
+                  <option th:each="u : ${unidades}" th:value="${u.codigo}" th:text="${u.identificacao}"></option>
+                </select>
+                <p th:if="${#fields.hasErrors('unidade')}" th:errors="*{unidade}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+              
+              <div class="col-span-6 sm:col-span-3">
+                <label for="transportadora" class="block text-sm font-medium text-gray-700">Transportadora</label>
+                <select th:field="*{transportadora}" id="transportadora" class="mt-1 block w-full rounded-md border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" th:classappend="${#fields.hasErrors('transportadora')} ? 'border-red-500' : ''">
+                  <option value="" disabled selected>Selecione a transportadora...</option>
+                  <option th:each="t : ${transportadoras}" th:value="${t.codigo}" th:text="${t.nome}"></option>
+                </select>
+                <p th:if="${#fields.hasErrors('transportadora')}" th:errors="*{transportadora}" class="mt-2 text-sm text-red-600"></p>
+              </div>
+
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+            <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              Salvar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</body>
+</html>

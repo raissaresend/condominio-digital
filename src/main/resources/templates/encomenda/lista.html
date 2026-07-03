@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Encomendas</title>
+</head>
+<body>
+  <div layout:fragment="conteudo" th:fragment="conteudo" id="main" class="flex-1 overflow-x-hidden p-6 sm:p-10">
+    <div class="flex items-center justify-between pb-6">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-700">Encomendas</h2>
+        <span class="text-xs text-gray-500">Listagem de encomendas com paginação</span>
+      </div>
+      <div class="flex items-center justify-between" sec:authorize="hasAnyAuthority('ROLE_PORTEIRO')">
+        <a th:hx-get="@{/encomenda/cadastrar}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true" class="cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          Nova Encomenda
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabela de Encomendas (Fragmento) -->
+    <div id="tabelaEncomendas" th:fragment="tabelaEncomendas" class="overflow-x-auto rounded-lg shadow">
+      <table class="min-w-full leading-normal">
+        <thead>
+          <tr>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Cód
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Descrição
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Data de Recebimento
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Status
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Unidade / Transportadora
+            </th>
+            <th sec:authorize="hasAnyAuthority('ROLE_PORTEIRO', 'ROLE_MORADOR')" class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Ações
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="encomenda : ${paginaEncomendas.content}">
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="whitespace-nowrap text-gray-900" th:text="${encomenda.codigo}"></p>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="text-gray-900" th:text="${encomenda.descricao}"></p>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="whitespace-nowrap text-gray-900" th:text="${#temporals.format(encomenda.dataRecebimento, 'dd/MM/yyyy HH:mm')}"></p>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <span class="relative inline-block px-3 py-1 font-semibold text-gray-900 leading-tight">
+                <span aria-hidden="true" class="absolute inset-0 rounded-full"
+                      th:classappend="${encomenda.status.name() == 'ENTREGUE' ? 'bg-green-200' : (encomenda.status.name() == 'AGUARDANDO_RETIRADA' ? 'bg-yellow-200' : 'bg-red-200')}"></span>
+                <span class="relative" th:text="${encomenda.status.descricao}"></span>
+              </span>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="whitespace-nowrap font-bold text-gray-900" th:text="${encomenda.unidade.identificacao}"></p>
+              <p class="whitespace-nowrap text-xs text-gray-500" th:text="${encomenda.transportadora.nome}"></p>
+            </td>
+            <td sec:authorize="hasAnyAuthority('ROLE_PORTEIRO', 'ROLE_MORADOR')" class="border-b border-gray-200 bg-white px-5 py-5 text-sm text-center">
+              <a th:hx-get="@{/encomenda/alterar/{codigo}(codigo=${encomenda.codigo})}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true" class="cursor-pointer text-indigo-600 hover:text-indigo-900 mr-2">Editar</a>
+              <button sec:authorize="hasAuthority('ROLE_PORTEIRO')" th:attr="hx-delete=@{/encomenda/remover/{codigo}(codigo=${encomenda.codigo}, page=${paginaEncomendas.number})}"
+                      hx-target="#tabelaEncomendas" hx-swap="outerHTML"
+                      hx-confirm="Tem certeza que deseja excluir esta encomenda?"
+                      class="text-red-600 hover:text-red-900">Excluir</button>
+            </td>
+          </tr>
+          <tr th:if="${paginaEncomendas.empty}">
+            <td colspan="6" class="border-b border-gray-200 bg-white px-5 py-5 text-sm text-center text-gray-500">
+              Nenhuma encomenda cadastrada.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <!-- Paginação -->
+      <div class="flex flex-col items-center border-t bg-white px-5 py-5 sm:flex-row sm:justify-between" th:if="${paginaEncomendas.totalPages > 1}">
+        <span class="text-xs text-gray-600 sm:text-sm">
+          Mostrando página <span th:text="${paginaEncomendas.number + 1}"></span> de <span th:text="${paginaEncomendas.totalPages}"></span>
+        </span>
+        <div class="mt-2 inline-flex sm:mt-0">
+          <button th:if="${paginaEncomendas.hasPrevious()}"
+                  th:hx-get="@{/encomenda(page=${paginaEncomendas.number - 1})}"
+                  hx-target="#main" hx-swap="outerHTML" hx-push-url="true"
+                  class="mr-2 rounded-l bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none">
+            Anterior
+          </button>
+          <button th:unless="${paginaEncomendas.hasPrevious()}" disabled class="mr-2 rounded-l bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
+            Anterior
+          </button>
+          
+          <button th:if="${paginaEncomendas.hasNext()}"
+                  th:hx-get="@{/encomenda(page=${paginaEncomendas.number + 1})}"
+                  hx-target="#main" hx-swap="outerHTML" hx-push-url="true"
+                  class="rounded-r bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none">
+            Próxima
+          </button>
+          <button th:unless="${paginaEncomendas.hasNext()}" disabled class="rounded-r bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
+            Próxima
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

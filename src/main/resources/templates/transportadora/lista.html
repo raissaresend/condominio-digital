@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Transportadoras</title>
+</head>
+<body>
+  <div layout:fragment="conteudo" th:fragment="conteudo" id="main" class="flex-1 overflow-x-hidden p-6 sm:p-10">
+    <div class="flex items-center justify-between pb-6">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-700">Transportadoras</h2>
+        <span class="text-xs text-gray-500">Listagem de todas as transportadoras cadastradas</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <a th:hx-get="@{/transportadora/cadastrar}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true" class="cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          Cadastrar Nova
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabela de Transportadoras (Fragmento) -->
+    <div id="tabelaTransportadoras" th:fragment="tabelaTransportadoras" class="overflow-x-auto rounded-lg shadow">
+      <table class="min-w-full leading-normal">
+        <thead>
+          <tr>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Código
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Nome
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+              CNPJ
+            </th>
+            <th class="border-b-2 border-gray-200 bg-gray-100 px-5 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+              Ações
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="transportadora : ${transportadoras}">
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="whitespace-nowrap text-gray-900" th:text="${transportadora.codigo}"></p>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="whitespace-nowrap text-gray-900" th:text="${transportadora.nome}"></p>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm">
+              <p class="whitespace-nowrap text-gray-900" th:text="${transportadora.cnpj}"></p>
+            </td>
+            <td class="border-b border-gray-200 bg-white px-5 py-5 text-sm text-center">
+              <a th:hx-get="@{/transportadora/alterar/{codigo}(codigo=${transportadora.codigo})}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true" class="cursor-pointer text-indigo-600 hover:text-indigo-900 mr-2">Editar</a>
+              <button th:attr="hx-delete=@{/transportadora/remover/{codigo}(codigo=${transportadora.codigo})}"
+                      hx-target="#tabelaTransportadoras" hx-swap="outerHTML"
+                      hx-confirm="Tem certeza que deseja excluir esta transportadora?"
+                      class="text-red-600 hover:text-red-900">Excluir</button>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(transportadoras)}">
+            <td colspan="4" class="border-b border-gray-200 bg-white px-5 py-5 text-sm text-center text-gray-500">
+              Nenhuma transportadora cadastrada.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</body>
+</html>
