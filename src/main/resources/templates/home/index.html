@@ -48,6 +48,29 @@
                 </a>
             </div>
             
+            <!-- Feed de Avisos -->
+            <div class="mt-12">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Últimos Avisos</h2>
+                    <a th:href="@{/aviso}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Ver todos os avisos &rarr;</a>
+                </div>
+
+                <div th:if="${#lists.isEmpty(avisos)}" class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
+                    <p class="text-gray-500">Nenhum aviso publicado no momento.</p>
+                </div>
+
+                <div class="space-y-4" th:unless="${#lists.isEmpty(avisos)}">
+                    <div th:each="aviso : ${avisos}" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:border-amber-300 transition-colors">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Aviso</span>
+                            <span class="text-sm text-gray-500 font-medium" th:text="${#temporals.format(aviso.dataPublicacao, 'dd/MM/yyyy HH:mm')}">Data</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1" th:text="${aviso.titulo}">Título</h3>
+                        <p class="text-gray-600 leading-relaxed" th:text="${aviso.conteudo}">Conteúdo...</p>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </main>
 </body>

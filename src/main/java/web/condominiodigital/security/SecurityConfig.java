@@ -16,19 +16,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
+                /**
+                 * Regras de Autorização
+                 * As permissões são aplicadas na ordem de declaração. Regras mais específicas
+                 * devem preceder as regras mais gerais.
+                 */
                 .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/tailwind.css").permitAll()
-                // Rotas exclusivas do Porteiro
-                .requestMatchers("/transportadora/**").hasAuthority("ROLE_PORTEIRO")
-                .requestMatchers("/usuario/**").hasAuthority("ROLE_PORTEIRO")
-                .requestMatchers("/unidade/**").hasAuthority("ROLE_PORTEIRO")
-                .requestMatchers("/relatorios/**").hasAuthority("ROLE_PORTEIRO")
                 
-                // Rotas de Modificação de Encomenda e Aviso
+                // Rotas Administrativas (Portaria)
+                .requestMatchers("/transportadora/**", "/usuario/**", "/unidade/**", "/relatorios/**").hasAuthority("ROLE_PORTEIRO")
+                
+                // Gestão de Operações do Condomínio
                 .requestMatchers("/encomenda/cadastrar", "/encomenda/remover/**").hasAuthority("ROLE_PORTEIRO")
                 .requestMatchers("/encomenda/alterar/**").hasAnyAuthority("ROLE_PORTEIRO", "ROLE_MORADOR")
                 .requestMatchers("/aviso/cadastrar", "/aviso/alterar/**", "/aviso/remover/**").hasAuthority("ROLE_PORTEIRO")
                 
-                // Moradores e Porteiros podem visualizar (qualquer um logado)
+                // Require authentication for any other route
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

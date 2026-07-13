@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.1</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/> 
 	</parent>
 	<groupId>web</groupId>
 	<artifactId>condominio-digital</artifactId>
@@ -88,7 +88,7 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Bouncy Castle for Argon2 (optional, but good to have) -->
+		<!-- Bouncy Castle for Argon2 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
@@ -110,7 +110,7 @@
 			<groupId>nz.net.ultraq.thymeleaf</groupId>
 			<artifactId>thymeleaf-layout-dialect</artifactId>
 		</dependency>
-		<!-- JasperReports para geração de PDF -->
+		<!-- JasperReports PDF -->
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -39,11 +40,12 @@ public class EncomendaController {
 
     @GetMapping
     public ModelAndView pesquisar(@RequestParam(value = "page", defaultValue = "0") int page, HttpServletRequest request) {
-        Pageable pageable = PageRequest.of(page, 10);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "codigo"));
         Page<Encomenda> paginaEncomendas = encomendaService.buscarTodasPaginado(pageable);
         
         ModelAndView mv = new ModelAndView(resolveView(request, "encomenda/lista"));
         mv.addObject("paginaEncomendas", paginaEncomendas);
+        mv.addObject("statusList", StatusEncomenda.values());
         return mv;
     }
 
@@ -122,11 +124,27 @@ public class EncomendaController {
         return mv;
     }
 
+    @PostMapping("/alterar/status/{codigo}")
+    public ModelAndView alterarStatusInline(@PathVariable("codigo") Long codigo, @RequestParam("status") StatusEncomenda novoStatus, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Encomenda encomenda = encomendaService.buscarPorCodigo(codigo);
+        encomenda.setStatus(novoStatus);
+        encomendaService.salvar(encomenda);
+        
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "codigo"));
+        Page<Encomenda> paginaEncomendas = encomendaService.buscarTodasPaginado(pageable);
+        
+        ModelAndView mv = new ModelAndView("encomenda/lista :: tabelaEncomendas");
+        mv.addObject("paginaEncomendas", paginaEncomendas);
+        mv.addObject("statusList", StatusEncomenda.values());
+        mv.addObject("notificacao", new NotificacaoSweetAlert2("Atualizado!", "Status alterado com sucesso.", TipoNotificaoSweetAlert2.SUCCESS));
+        return mv;
+    }
+
     @DeleteMapping("/remover/{codigo}")
     public ModelAndView remover(@PathVariable("codigo") Long codigo, @RequestParam(value = "page", defaultValue = "0") int page) {
         encomendaService.excluir(codigo);
         
-        Pageable pageable = PageRequest.of(page, 10);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.ASC, "codigo"));
         Page<Encomenda> paginaEncomendas = encomendaService.buscarTodasPaginado(pageable);
         
         ModelAndView mv = new ModelAndView("encomenda/lista :: tabelaEncomendas");

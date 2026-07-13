@@ -1,7 +1,7 @@
 <div th:fragment="header" xmlns:th="http://www.thymeleaf.org"
   xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <!-- Header -->
-  <header class="flex items-center justify-between bg-gray-800 p-4">
+  <header class="relative z-50 flex items-center justify-between bg-gray-800 p-4">
     <!-- Botao Hamburger -->
     <div class="md:hidden">
       <button id="menu-btn" type="button" class="hamburger z-40 block focus:outline-none md:hidden">
@@ -35,9 +35,12 @@
       </div>
       <!-- botao logout -->
       <div sec:authorize="isAuthenticated()">
-        <a th:hx-post="@{/logout}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true"
-          class="ml-5 rounded-lg border-2 border-gray-600 bg-gray-600 px-8 py-2 text-white shadow-md hover:bg-white hover:text-gray-600">
-          Logout </a>
+        <form th:action="@{/logout}" method="post" class="inline m-0 p-0">
+          <button type="submit"
+            class="ml-5 rounded-lg border-2 border-gray-600 bg-gray-600 px-8 py-2 text-white shadow-md hover:bg-white hover:text-gray-600">
+            Logout 
+          </button>
+        </form>
       </div>
     </div>
 
@@ -55,19 +58,31 @@
 
   <!-- Mobile Menu -->
   <div id="menu"
-    class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col space-y-3 self-end bg-gray-800 py-1 pl-12 pt-40 text-lg text-gray-400">
+    class="absolute z-40 bottom-0 left-0 top-0 hidden md:hidden min-h-screen w-full flex-col space-y-3 self-end bg-gray-800 py-1 pl-12 pt-40 text-lg text-gray-400">
     <th:block th:replace="~{layout/fragments/menu :: menu}"></th:block>
   </div>
 
   <!-- Mobile Menu Usuario -->
   <div id="menu-usuario"
-    class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col items-end space-y-3 self-end bg-gray-800 py-1 pr-12 pt-20 text-lg text-gray-400">
-    <div class="text-gray-300">Grosbilda</div>
-    <a href="#"
-      class="ml-5 rounded-lg border-2 border-gray-600 bg-gray-600 px-8 py-2 text-white shadow-md hover:bg-white hover:text-gray-600">
-      Login </a>
-    <a href="#"
-      class="ml-5 rounded-lg border-2 border-gray-600 bg-gray-600 px-8 py-2 text-white shadow-md hover:bg-white hover:text-gray-600">
-      Logout </a>
+    class="absolute z-40 bottom-0 left-0 top-0 hidden md:hidden min-h-screen w-full flex-col items-end space-y-3 self-end bg-gray-800 py-1 pr-12 pt-20 text-lg text-gray-400">
+    
+    <div sec:authorize="isAuthenticated()" class="text-gray-300 mb-4">
+      <span sec:authentication="principal.username"></span>
+    </div>
+    
+    <div sec:authorize="!isAuthenticated()">
+      <a th:hx-get="@{/login}" hx-target="#main" hx-swap="outerHTML" hx-push-url="true"
+        class="ml-5 rounded-lg border-2 border-gray-600 bg-gray-600 px-8 py-2 text-white shadow-md hover:bg-white hover:text-gray-600">
+        Login </a>
+    </div>
+    
+    <div sec:authorize="isAuthenticated()">
+      <form th:action="@{/logout}" method="post" class="inline m-0 p-0">
+        <button type="submit"
+          class="ml-5 rounded-lg border-2 border-gray-600 bg-gray-600 px-8 py-2 text-white shadow-md hover:bg-white hover:text-gray-600">
+          Logout 
+        </button>
+      </form>
+    </div>
   </div>
 </div>

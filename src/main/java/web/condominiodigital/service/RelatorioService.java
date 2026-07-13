@@ -22,28 +22,20 @@ public class RelatorioService {
 
     @Transactional(readOnly = true)
     public byte[] gerarRelatorioEncomendasPdf() throws Exception {
-        // Carrega os arquivos JRXML
         InputStream principalStream = new org.springframework.core.io.ClassPathResource("relatorios/relatoriounidades.jrxml").getInputStream();
         InputStream subReportStream = new org.springframework.core.io.ClassPathResource("relatorios/relatorioencomendas.jrxml").getInputStream();
 
-        // Compila os JRXML em tempo real (pois não estamos usando plugin Maven para compilar offline)
         JasperReport principalReport = JasperCompileManager.compileReport(principalStream);
         JasperReport subReport = JasperCompileManager.compileReport(subReportStream);
 
-        // Busca todas as unidades (e suas encomendas devido ao mapeamento JPA)
         List<Unidade> unidades = unidadeRepository.findAll();
-
-        // Cria o DataSource a partir da lista
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(unidades);
 
-        // Parâmetros (passando o sub-relatório compilado)
         Map<String, Object> parametros = new HashMap<>();
         parametros.put("subReport", subReport);
 
-        // Preenche o relatório
         JasperPrint jasperPrint = JasperFillManager.fillReport(principalReport, parametros, dataSource);
 
-        // Exporta para byte[] (PDF)
         return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 }

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
   <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Condomínio Digital</title>
-  <link rel="shortcut icon" th:href="@{/images/logo.png}" />
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}" />
   <!-- Estilo Principal do Template e Tailwind -->
   <link rel="stylesheet" type="text/css" th:href="@{/tailwind.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
@@ -37,29 +37,21 @@
   <!-- Biblioteca SweetAlert2 -->
   <script th:src="@{/js/vendors/sweetalert2/sweetalert2.all.min.js}" defer></script>
 
-  <!-- Aplicação Principal (Global) -->
   <script th:src="@{/js/app.js}" defer></script>
-  <!-- Isso está aqui apenas para o 1o acesso depois de logar -->
   <meta name="_csrf" th:content="${_csrf.token}" />
   <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body hx-ext="response-targets" hx-target="#main" hx-target-5*="#main" hx-target-4*="#main">
-  <!-- Container da página -->
   <div class="container flex h-screen min-w-full flex-col">
-    <!-- Navbar da pagina TOPO -->
     <div th:replace="~{layout/fragments/header :: header}"></div>
 
-    <!-- Meio -->
     <section class="flex flex-1">
-      <!-- Menu lateral ESQUERDA -->
       <div th:replace="~{components/sidebar :: sidebar}"></div>
 
-      <!-- Conteudo Principal da pagina -->
       <th:block layout:fragment="conteudo"></th:block>
     </section>
 
-    <!-- Rodape da pagina BAIXO -->
     <div th:replace="~{layout/fragments/rodape :: rodape}"></div>
   </div>
 

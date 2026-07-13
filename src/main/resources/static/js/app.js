@@ -1,4 +1,4 @@
-class AppVacinacao {
+class AppCondominio {
 
     static CONFIG = {
         seletores: {
@@ -35,6 +35,9 @@ class AppVacinacao {
         }
     };
 
+    /**
+     * Instância global do SweetAlert2 para notificações (Toasts).
+     */
     static Toast = Swal.mixin({
         toast: true,
         position: "center-end",
@@ -50,20 +53,26 @@ class AppVacinacao {
         },
     });
 
+    /**
+     * Armazena os tokens CSRF para requisições assíncronas (HTMX).
+     */
     static csrfData = {
         header: null,
         token: null
     };
 
+    /**
+     * Método principal de inicialização da classe.
+     */
     static init() {
-        console.log("[DEBUG] init chamado");
         this.lerCsrfDoHTML();
-        // this.atualizarComponentes(); // Removido pois o htmx.onLoad chamará para o document inicial
         this.registrarListenersGlobais();
     }
 
+    /**
+     * Varre o DOM em busca de componentes customizados e aplica suas respectivas lógicas/bibliotecas.
+     */
     static atualizarComponentes(container = document) {
-        console.log("[DEBUG] atualizarComponentes chamado.");
         this.prepararMoney(container);
         this.prepararData(container);
         this.prepararHora(container);
@@ -74,6 +83,9 @@ class AppVacinacao {
         this.prepararNumero(container);
     }
 
+    /**
+     * Extrai os tokens CSRF contidos nas meta tags da página gerada pelo Spring Security.
+     */
     static lerCsrfDoHTML() {
         const tokenMeta = document.querySelector('meta[name="_csrf"]');
         const headerMeta = document.querySelector('meta[name="_csrf_header"]');
@@ -83,16 +95,16 @@ class AppVacinacao {
         }
     }
 
+    /**
+     * Registra os ouvintes globais para lidar com requisições HTMX e eventos customizados.
+     */
     static registrarListenersGlobais() {
         if (typeof htmx !== 'undefined') {
             htmx.onLoad((elt) => {
-                console.log("[DEBUG] htmx.onLoad disparado.");
                 this.atualizarComponentes(elt);
             });
 
             htmx.on("htmx:afterSettle", (evt) => {
-                console.log("[DEBUG] htmx:afterSettle disparado.");
-                // Lógica de Captura do CSRF (vinda da resposta)
                 if (evt.detail.xhr) {
                     let header = "X-CSRF-TOKEN";
                     let token = evt.detail.xhr.getResponseHeader(header);
@@ -136,12 +148,14 @@ class AppVacinacao {
         }
     }
 
+    /**
+     * Aplica a máscara monetária aos inputs designados.
+     */
     static prepararMoney(container = document) {
         let inputs = container.querySelectorAll(this.CONFIG.seletores.money);
         if (container.matches && container.matches(this.CONFIG.seletores.money)) {
             inputs = [container];
         }
-        console.log(`[DEBUG] prepararMoney encontrou ${inputs.length} elementos.`);
 
         inputs.forEach((input) => {
             if (typeof SimpleMaskMoney !== 'undefined') {
@@ -151,6 +165,9 @@ class AppVacinacao {
         });
     }
 
+    /**
+     * Aplica a máscara e o calendário visual (MCDatepicker) aos campos de data.
+     */
     static prepararData(container = document) {
         let inputs = container.querySelectorAll(this.CONFIG.seletores.data);
         if (container.matches && container.matches(this.CONFIG.seletores.data)) {
@@ -158,15 +175,12 @@ class AppVacinacao {
         }
 
         inputs.forEach((input) => {
-            // Variável para guardar a referência do calendário
             let datePicker = null;
 
-            // Função local para sincronizar o texto com o calendário
             const sincronizarCalendario = () => {
                 if (datePicker && input.value.length === 10) {
                     const parts = input.value.split("/");
                     const d = new Date(+parts[2], parts[1] - 1, +parts[0]);
-                    // Garante que é uma data válida antes de mudar o calendário
                     if (!isNaN(d.getTime())) {
                         datePicker.setFullDate(d);
                     }
@@ -185,62 +199,51 @@ class AppVacinacao {
                     v = v.substring(0, 2) + "/" + v.substring(2, 4) + "/" + v.substring(4, 8);
                 }
                 e.target.value = v;
-
-                // Tenta sincronizar instantaneamente se a data estiver completa
                 sincronizarCalendario();
             });
 
-            // Sincroniza também caso o usuário saia do campo ou cole um valor
             input.addEventListener("blur", sincronizarCalendario);
 
             input.classList.remove("componentedata");
             input.setAttribute("placeholder", "DD/MM/AAAA");
             input.setAttribute("maxlength", "10");
 
-            // --- CALENDÁRIO VINCULADO AO ÍCONE ---
             if (typeof MCDatepicker !== 'undefined') {
                 const btnId = "btn-" + input.id;
                 const btn = (container.querySelector ? container.querySelector("#" + btnId) : null)
                     || document.getElementById(btnId);
 
                 if (btn) {
-                    // 1. Cria uma "âncora" invisível dentro do botão
                     const anchorId = "anchor-" + input.id;
                     let anchor = document.getElementById(anchorId);
 
                     if (!anchor) {
                         anchor = document.createElement("span");
                         anchor.id = anchorId;
-                        // Fica invisível, não atrapalha o layout e não recebe foco do TAB
                         anchor.style.cssText = "position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;";
                         btn.appendChild(anchor);
                     }
 
-                    // 2. Vincula o MCDatepicker à âncora fantasma (isso resolve a posição na tela)
                     datePicker = MCDatepicker.create({
                         ...this.CONFIG.datePicker,
                         el: "#" + anchor.id,
                         autoClose: false
                     });
 
-                    // 3. Controle Manual: Dispara com Click
                     btn.addEventListener("click", (e) => {
                         e.preventDefault();
                         datePicker.open();
                     });
 
-                    // 4. Controle Manual: Dispara com Espaço ou Enter (padrão de acessibilidade)
                     btn.addEventListener("keydown", (e) => {
                         if (e.key === " " || e.key === "Enter") {
-                            e.preventDefault(); // Evita que a barra de espaço role a página para baixo
+                            e.preventDefault();
                             datePicker.open();
                         }
                     });
 
                     datePicker.onSelect((date, formatedDate) => {
                         input.value = formatedDate;
-
-                        // Dispara o evento de input para garantir que o HTMX/Validação percebam a mudança
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                     });
 
@@ -250,30 +253,28 @@ class AppVacinacao {
         });
     }
 
+    /**
+     * Aplica a máscara e o seletor visual de horas (mdDateTimePicker) aos campos de horário.
+     */
     static prepararHora(container = document) {
         let inputs = container.querySelectorAll(this.CONFIG.seletores.hora);
         if (container.matches && container.matches(this.CONFIG.seletores.hora)) {
             inputs = [container];
         }
-        console.log(`[DEBUG] prepararHora encontrou ${inputs.length} elementos.`);
 
         inputs.forEach((input) => {
             let apagando = false;
 
-            // 1. Lógica de Máscara (Teclado)
             input.addEventListener("keydown", (e) => {
                 apagando = e.key === "Backspace";
             });
 
             input.addEventListener("input", (e) => {
                 if (apagando) return;
-
                 let v = e.target.value.replace(/\D/g, "");
-
                 if (v.length > 2) {
                     v = v.substring(0, 2) + ":" + v.substring(2, 4);
                 }
-
                 e.target.value = v;
             });
 
@@ -281,7 +282,6 @@ class AppVacinacao {
             input.setAttribute("placeholder", "HH:MM");
             input.setAttribute("maxlength", "5");
 
-            // 2. Acoplando o relógio visual
             if (typeof mdDateTimePicker !== 'undefined') {
                 const btnId = "btn-" + input.id;
                 const btn = (container.querySelector ? container.querySelector("#" + btnId) : null)
@@ -293,14 +293,12 @@ class AppVacinacao {
 
                 const sincronizarRelogio = () => {
                     if (input.value && input.value.length === 5) {
-                        // Validação básica para evitar que o relógio quebre com horas bizarras (ex: 99:99)
                         const partes = input.value.split(':');
                         const h = parseInt(partes[0], 10);
                         const m = parseInt(partes[1], 10);
 
                         if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
                             if (typeof moment !== 'undefined') {
-                                // Atualiza o objeto Moment interno da biblioteca
                                 dialog.time = moment(input.value, "HH:mm");
                             }
                         }
@@ -310,14 +308,14 @@ class AppVacinacao {
                 if (btn) {
                     btn.addEventListener("click", (e) => {
                         e.preventDefault();
-                        sincronizarRelogio(); // <--- Lê a hora digitada antes de abrir
+                        sincronizarRelogio();
                         dialog.toggle();
                     });
 
                     btn.addEventListener("keydown", (e) => {
                         if (e.key === " " || e.key === "Enter") {
                             e.preventDefault();
-                            sincronizarRelogio(); // <--- Lê a hora digitada antes de abrir
+                            sincronizarRelogio();
                             dialog.toggle();
                         }
                     });
@@ -333,6 +331,9 @@ class AppVacinacao {
         });
     }
 
+    /**
+     * Aplica a formatação em tempo real de CPF.
+     */
     static prepararCpf(container = document) {
         let inputs = container.querySelectorAll(this.CONFIG.seletores.cpf);
         if (container.matches && container.matches(this.CONFIG.seletores.cpf)) {
@@ -349,9 +350,8 @@ class AppVacinacao {
             input.addEventListener("input", (e) => {
                 if (apagando) return;
 
-                let v = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+                let v = e.target.value.replace(/\D/g, "");
 
-                // Aplica a máscara 000.000.000-00 progressivamente
                 if (v.length > 9) {
                     v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
                 } else if (v.length > 6) {
@@ -363,13 +363,15 @@ class AppVacinacao {
                 e.target.value = v;
             });
 
-            // Configurações nativas do input
             input.classList.remove("componentecpf");
             input.setAttribute("placeholder", "000.000.000-00");
             input.setAttribute("maxlength", "14");
         });
     }
 
+    /**
+     * Alterna a visibilidade (toggle text/password) de inputs de senha.
+     */
     static prepararSenha(container = document) {
         let botoes = container.querySelectorAll(this.CONFIG.seletores.senha);
         if (container.matches && container.matches(this.CONFIG.seletores.senha)) {
@@ -379,18 +381,11 @@ class AppVacinacao {
         botoes.forEach(btn => {
             btn.addEventListener("click", (e) => {
                 e.preventDefault();
-
-                // 1. Acha o container relative pai
                 const containerRelativo = btn.closest(".relative");
-
-                // 2. Acha o input de texto/senha (ignorando o hidden)
                 const input = containerRelativo.querySelector("input:not([type='hidden'])");
-
-                // 3. Acha os ícones
                 const olhoAberto = btn.querySelector(".icone-olho-aberto");
                 const olhoFechado = btn.querySelector(".icone-olho-fechado");
 
-                // 4. Faz a troca lógica (Toggle)
                 if (input.type === "password") {
                     input.type = "text";
                     olhoFechado.classList.add("hidden");
@@ -404,6 +399,9 @@ class AppVacinacao {
         });
     }
 
+    /**
+     * Formata inputs numéricos genéricos.
+     */
     static prepararNumero(container = document) {
         const inputs = container.querySelectorAll(".input-numero");
 
@@ -411,32 +409,23 @@ class AppVacinacao {
             const isDecimal = input.dataset.decimal === "true";
             const showGroups = input.dataset.groups === "true";
 
-            // Formatação inicial quando a página carrega
             const formatar = (valor) => {
                 if (!valor) return "";
                 let v = valor.toString();
 
-                // 1. O valor já veio com vírgula do Spring (ex: 1.234,56)?
                 if (v.includes(',')) {
-                    // Remove todos os pontos de milhar para recalcular depois
                     v = v.replace(/\./g, "");
-                }
-                // 2. O valor veio "cru" do Java (ex: 1234.56)?
-                else if (isDecimal && v.includes('.')) {
-                    // Troca o ponto decimal por vírgula
+                } else if (isDecimal && v.includes('.')) {
                     v = v.replace('.', ',');
                 }
 
-                // Remove qualquer lixo que tenha sobrado, deixando só números e vírgula
                 v = v.replace(/[^0-9,]/g, "");
 
-                // Reaplica a máscara de grupos (pontos de milhar)
                 if (showGroups) {
                     let partes = v.split(',');
                     partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                     v = partes.join(',');
                 }
-
                 return v;
             };
 
@@ -444,20 +433,14 @@ class AppVacinacao {
                 input.value = formatar(input.value);
             }
 
-            // Máscara enquanto o aluno digita
             input.addEventListener("input", (e) => {
-                let v = e.target.value.replace(/[^0-9,]/g, ""); // Permite só números e vírgula
-
-                // Impede mais de uma vírgula
+                let v = e.target.value.replace(/[^0-9,]/g, ""); 
                 if ((v.match(/,/g) || []).length > 1) {
                     v = v.substring(0, v.lastIndexOf(','));
                 }
-
-                // Se não for decimal, remove qualquer vírgula que tenha passado
                 if (!isDecimal) {
                     v = v.replace(/,/g, "");
                 }
-
                 if (showGroups) {
                     let partes = v.split(',');
                     partes[0] = partes[0].replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -468,12 +451,14 @@ class AppVacinacao {
         });
     }
 
+    /**
+     * Configura a interceptação para modais de confirmação via SweetAlert.
+     */
     static prepararConfirmacoes(container = document) {
         let elementos = container.querySelectorAll(this.CONFIG.seletores.confirm);
         if (container.matches && container.matches(this.CONFIG.seletores.confirm)) {
             elementos = [container];
         }
-        console.log(`[DEBUG] prepararConfirmacoes encontrou ${elementos.length} elementos.`);
 
         elementos.forEach((elemento) => {
             elemento.addEventListener("htmx:confirm", (e) => this._dispararSweetAlert(e));
@@ -484,12 +469,12 @@ class AppVacinacao {
     static _dispararSweetAlert(e) {
         e.preventDefault();
         Swal.fire({
-            title: AppVacinacao.CONFIG.texto.tituloConfirm,
+            title: AppCondominio.CONFIG.texto.tituloConfirm,
             text: e.detail.question,
             icon: "warning",
             showCancelButton: true,
-            cancelButtonText: AppVacinacao.CONFIG.texto.cancelar,
-            confirmButtonText: AppVacinacao.CONFIG.texto.remover,
+            cancelButtonText: AppCondominio.CONFIG.texto.cancelar,
+            confirmButtonText: AppCondominio.CONFIG.texto.remover,
             confirmButtonColor: "#3085d6",
         }).then((result) => {
             if (result.isConfirmed) {
@@ -514,12 +499,14 @@ class AppVacinacao {
         trigger.classList.add("border-gray-300");
     }
 
+    /**
+     * Inicializa lógica de Selects pesquisáveis customizados.
+     */
     static prepararBusca(container = document) {
         let containers = container.querySelectorAll(this.CONFIG.seletores.buscaContainer);
         if (container.matches && container.matches(this.CONFIG.seletores.buscaContainer)) {
             containers = [container];
         }
-        console.log(`[DEBUG] prepararBusca encontrou ${containers.length} elementos.`);
 
         containers.forEach((container) => {
             container.dataset.initialized = "true";
@@ -568,7 +555,7 @@ class AppVacinacao {
                         if (dropdown) dropdown.classList.add("hidden");
                         const trigger = container.querySelector(".custom-select-trigger");
                         if (trigger) {
-                            AppVacinacao._removeFocus(trigger);
+                            AppCondominio._removeFocus(trigger);
                         }
                     }
                 });
@@ -577,5 +564,4 @@ class AppVacinacao {
     }
 }
 
-// Inicialização automática
-document.addEventListener("DOMContentLoaded", () => AppVacinacao.init());
+document.addEventListener("DOMContentLoaded", () => AppCondominio.init());

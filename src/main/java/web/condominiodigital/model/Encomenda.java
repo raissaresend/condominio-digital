@@ -26,6 +26,7 @@ public class Encomenda {
     private String descricao;
 
     @NotNull(message = "A data de recebimento é obrigatória")
+    @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @Column(name = "data_recebimento", nullable = false)
     private LocalDateTime dataRecebimento;
 

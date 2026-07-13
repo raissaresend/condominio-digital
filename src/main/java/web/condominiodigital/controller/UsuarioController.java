@@ -56,7 +56,6 @@ public class UsuarioController {
     @GetMapping("/alterar/{codigo}")
     public ModelAndView abrirFormularioAlteracao(@PathVariable("codigo") Long codigo, HttpServletRequest request) {
         Usuario usuario = usuarioService.buscarPorCodigo(codigo);
-        // Não enviar a senha para a tela
         usuario.setPassword("");
         ModelAndView mv = new ModelAndView(resolveView(request, "usuario/formulario"));
         mv.addObject("usuario", usuario);
@@ -75,7 +74,6 @@ public class UsuarioController {
         usuario.setCodigo(codigo);
         usuarioService.salvar(usuario);
 
-        // Limpar a senha novamente para a tela
         usuario.setPassword("");
         ModelAndView mv = new ModelAndView("usuario/formulario :: formulario");
         mv.addObject("notificacao", new NotificacaoSweetAlert2("Sucesso!", "Usuário alterado com sucesso.", TipoNotificaoSweetAlert2.SUCCESS));
