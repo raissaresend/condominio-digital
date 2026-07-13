@@ -91,4 +91,4 @@ A arquitetura do projeto segue o padrão **MVC (Model-View-Controller)**:
 
 ## ✒️ Autor
 
-Desenvolvido por **Raissa** como trabalho acadêmico.
+Desenvolvido por **Raissa Resende** como trabalho acadêmico.
