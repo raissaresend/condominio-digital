@@ -7,7 +7,7 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=for-the-badge&logo=Thymeleaf&logoColor=white)
 
-Um sistema web completo para a gestão inteligente e digital de condomínios. Desenvolvido como projeto acadêmico, o sistema permite o controle de encomendas, comunicados no mural, cadastro de moradores e controle de acessos (Porteiros e Moradores).
+Um sistema web para a gestão digital de condomínios. Desenvolvido como projeto acadêmico, o sistema permite o controle de encomendas, comunicados no mural, cadastro de moradores e controle de acessos (Porteiros e Moradores).
 
 ---
 
